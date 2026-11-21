@@ -1,22 +1,115 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Jarvis AI</title>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JARVIS AI</title>
 <style>
-body {
-  background: #080d18;
-  color: white;
-  font-family: Arial;
-  text-align: center;
-  padding: 100px 15px;
+*{box-sizing:border-box}
+body{
+ margin:0;background:#050b16;color:#eafaff;
+ font-family:Arial,sans-serif;text-align:center;
+ min-height:100vh;padding:30px 18px;
 }
-h1 { color: #00d9ff; }
+h1{color:#00e5ff;letter-spacing:5px;margin-top:35px}
+.orb{
+ width:170px;height:170px;border-radius:50%;
+ margin:35px auto;background:radial-gradient(circle,#00e5ff,#075078,#061326);
+ box-shadow:0 0 35px #00cfff, inset 0 0 30px #fff;
+ animation:pulse 2s infinite;
+}
+@keyframes pulse{
+ 50%{box-shadow:0 0 65px #00cfff,inset 0 0 35px #fff}
+}
+#status{color:#00e5ff;margin:20px}
+button{
+ background:#00cfff;color:#00121d;border:0;
+ border-radius:25px;padding:15px 24px;
+ font-weight:bold;margin:8px;font-size:15px;
+}
+input{
+ width:90%;max-width:400px;padding:15px;
+ border-radius:20px;border:1px solid #00cfff;
+ background:#101e30;color:white;font-size:16px;
+}
+#reply{margin:25px auto;max-width:500px;line-height:1.6}
+small{color:#9bb5c5}
 </style>
 </head>
 <body>
-<h1>JARVIS AI</h1>
-<h2>Your Personal AI Assistant</h2>
-<p>Welcome! Jarvis is getting ready.</p>
+<h1>J.A.R.V.I.S</h1>
+<p>YOUR PERSONAL ASSISTANT</p>
+<div class="orb"></div>
+<p id="status">SYSTEM ONLINE</p>
+
+<button onclick="listen()">🎤 SPEAK</button>
+<br>
+<input id="command" placeholder="Type a command...">
+<button onclick="send()">SEND</button>
+
+<div id="reply">Hello! I am JARVIS. How can I help you?</div>
+<small>Free Edition • Browser-based assistant</small>
+
+<script>
+const statusText=document.getElementById("status");
+const reply=document.getElementById("reply");
+
+function speak(text){
+ reply.innerText=text;
+ if("speechSynthesis" in window){
+  speechSynthesis.cancel();
+  let msg=new SpeechSynthesisUtterance(text);
+  msg.lang="en-IN";
+  speechSynthesis.speak(msg);
+ }
+}
+
+function processCommand(command){
+ let c=command.toLowerCase();
+ if(c.includes("hello")||c.includes("hi"))
+  speak("Hello! Sir. JARVIS is ready.");
+ else if(c.includes("time"))
+  speak("The time is "+new Date().toLocaleTimeString());
+ else if(c.includes("date"))
+  speak("Today is "+new Date().toLocaleDateString());
+ else if(c.includes("your name"))
+  speak("I am JARVIS, your personal browser assistant.");
+ else if(c.includes("joke"))
+  speak("Why did the computer go to the doctor? Because it had a virus!");
+ else if(c.includes("help"))
+  speak("You can ask me the time, date, tell a joke, or say hello.");
+ else if(c.includes("thank"))
+  speak("You're welcome. Always happy to help.");
+ else
+  speak("I don't know that command yet. Try asking for the time, date, or help.");
+}
+
+function send(){
+ let input=document.getElementById("command");
+ if(!input.value.trim())return;
+ processCommand(input.value);
+ input.value="";
+}
+
+function listen(){
+ const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SpeechRecognition){
+  speak("Voice recognition is not supported in this browser. Please type your command.");
+  return;
+ }
+ const recognition=new SpeechRecognition();
+ recognition.lang="en-IN";
+ recognition.onstart=()=>statusText.innerText="LISTENING...";
+ recognition.onend=()=>statusText.innerText="SYSTEM ONLINE";
+ recognition.onerror=()=>speak("Microphone unavailable. Please check browser permission.");
+ recognition.onresult=(event)=>{
+  let words=event.results[0][0].transcript;
+  document.getElementById("command").value=words;
+  processCommand(words);
+ };
+ recognition.start();
+}
+</script>
 </body>
 </html>
